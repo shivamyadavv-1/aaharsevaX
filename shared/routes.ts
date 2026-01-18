@@ -72,17 +72,6 @@ export const api = {
         200: z.array(z.custom<typeof donations.$inferSelect>()),
       },
     },
-  },
-  admin: {
-    verify: {
-      method: 'POST' as const,
-      path: '/api/admin/verify',
-      input: z.object({ password: z.string() }),
-      responses: {
-        200: z.object({ success: z.boolean() }),
-        401: z.object({ message: z.string() }),
-      },
-    },
   }
 };
 

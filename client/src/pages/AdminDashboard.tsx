@@ -7,84 +7,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Calendar, MapPin, Phone, Database, Clock, Lock } from "lucide-react";
+import { Loader2, Calendar, MapPin, Phone, Database, Clock } from "lucide-react";
 import { format } from "date-fns";
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
-import { api } from "@shared/routes";
 
 export default function AdminDashboard() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [password, setPassword] = useState("");
-  const [isVerifying, setIsVerifying] = useState(false);
-  const { toast } = useToast();
-
   const { data: donations, isLoading: loadingDonations } = useDonations();
   const { data: requests, isLoading: loadingRequests } = useNgoRequests();
   const { data: inventory, isLoading: loadingInventory } = useInventory();
 
-  useEffect(() => {
-    const auth = sessionStorage.getItem("admin_auth");
-    if (auth === "true") {
-      setIsAuthenticated(true);
-    }
-  }, []);
-
-  const handleVerify = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsVerifying(true);
-    try {
-      const res = await fetch(api.admin.verify.path, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
-      });
-
-      if (res.ok) {
-        setIsAuthenticated(true);
-        sessionStorage.setItem("admin_auth", "true");
-        toast({ title: "Authenticated", description: "Welcome to the Admin Dashboard." });
-      } else {
-        toast({ variant: "destructive", title: "Authentication Failed", description: "Incorrect admin password." });
-      }
-    } catch (error) {
-      toast({ variant: "destructive", title: "Error", description: "Something went wrong. Please try again." });
-    } finally {
-      setIsVerifying(false);
-    }
-  };
-
-  if (!isAuthenticated) {
+  if (loadingDonations || loadingRequests || loadingInventory) {
     return (
       <div className="min-h-screen flex flex-col bg-background">
         <Navbar />
-        <main className="flex-1 flex items-center justify-center p-4">
-          <Card className="w-full max-w-md shadow-lg">
-            <CardHeader className="text-center">
-              <div className="mx-auto bg-primary/10 p-3 rounded-full w-fit mb-4">
-                <Lock className="h-6 w-6 text-primary" />
-              </div>
-              <CardTitle className="text-2xl">Admin Login</CardTitle>
-              <CardDescription>Enter the admin password to access the dashboard.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleVerify} className="space-y-4">
-                <Input
-                  type="password"
-                  placeholder="Admin Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="h-12"
-                  required
-                />
-                <Button type="submit" className="w-full h-12 text-base" disabled={isVerifying}>
-                  {isVerifying ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : "Access Dashboard"}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
+        <main className="flex-1 flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </main>
         <Footer />
       </div>
